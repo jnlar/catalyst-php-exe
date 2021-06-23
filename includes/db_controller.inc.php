@@ -1,17 +1,11 @@
 <?php
-  class DbController {
+  class Db_controller {
     private $host;
     private $user;
     private $password;
     private $database;
-    private $user_table_sql = "
-      DROP TABLE IF EXISTS users;
-      CREATE TABLE users (
-        name VARCHAR(150),
-        surname VARCHAR(150),
-        email VARCHAR(150) UNIQUE
-      )";
 
+		public $set_query;
     public $con = null;
 
     // TODO: get -u -p -h values from cli options
@@ -36,12 +30,12 @@
         $this->host,
         $this->user,
         $this->password,
-        $this->database) or die($con->error . "\n");
+        $this->database) || die($this->con->error . "\n");
     }
 
     public function create_user_table() {
-      $this->con->multi_query($this->user_table_sql)
-        or die($con->error . "\n");
+			$this->con->multi_query($this->set_query) 
+				|| die($this->con->error . "\n");
 
       echo sprintf("Creating a new `%s` table in %s \n", $this->user, $this->database);
 
