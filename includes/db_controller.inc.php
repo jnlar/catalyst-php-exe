@@ -5,7 +5,7 @@
     private $password;
     private $database;
 
-		public $set_query;
+		public static $query;
     public $con = null;
 
     // TODO: get -u -p -h values from cli options
@@ -30,12 +30,12 @@
         $this->host,
         $this->user,
         $this->password,
-        $this->database) || die($this->con->error . "\n");
+        $this->database) or die($this->con->error . "\n");
     }
 
     public function create_user_table() {
-			$this->con->multi_query($this->set_query) 
-				|| die($this->con->error . "\n");
+			$this->con->multi_query(self::$query)
+				or die($this->con->error . "\n");
 
       echo sprintf("Creating a new `%s` table in %s \n", $this->user, $this->database);
 
