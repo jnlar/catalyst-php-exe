@@ -1,20 +1,23 @@
 <?php
-require 'includes/db_controller.inc.php';
-require 'includes/opt.inc.php';
-require 'includes/parse_file.inc.php';
+require 'includes/autoloader.php';
 
-$opt = new Opt_controller();
-$db = new Db_controller($opt->options);
-$file = new Parse_file('./users.csv');
+$get_opt = new get_opt();
+$parse = new parse();
 
-$file->test();
+db::get_db_cred([
+	get_opt::$args->getOpt('host'),
+	get_opt::$args->getOpt('user'),
+	get_opt::$args->getOpt('password'),
+	get_opt::$args->getOpt('database')
+]);
 
-Db_controller::$query = "
-	DROP TABLE IF EXISTS users;
-		CREATE TABLE users (
-		name VARCHAR(150),
-		surname VARCHAR(150),
-		email VARCHAR(150) UNIQUE";
-
-$opt->handle_create_table($db, Db_controller::$query);
-?>
+$table = dbh::$table = "users";
+dbh::$query = "
+	DROP TABLE IF EXISTS $table;
+	CREATE TABLE $table (
+	name VARCHAR(150),
+	surname VARCHAR(150),
+	email VARCHAR(150) UNIQUE);
+";
+dbh::handle_create();
+dbh::handle_insert();

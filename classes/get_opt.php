@@ -14,7 +14,7 @@ class get_opt {
   }
 
   private function init_opt() {
-    self::$cli->description('Extensible CLI script that parses CSV data and inserts into a MySQL database')
+    self::$cli->description('CLI script that parses CSV data and inserts formatted CSV data into a MySQL database. Use to --help or -? for CLI options')
     	->opt('file', '[csv file name] - This is the name of the CSV file to be parsed', false)
     	->opt('create_table', 'This will cause the MySQL users table to be built (no further action will be taken)', false)
     	->opt('dry_run', 'To be used with the --file directive, this option will parse the CSV file but not insert into the database', false)

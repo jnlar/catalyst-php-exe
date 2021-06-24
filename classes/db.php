@@ -21,7 +21,7 @@ class db {
       self::$user,
       self::$password,
       self::$database,
-    );
+    ) or die(self::$con->error . '\n');
 
     return self::$con;
   }
