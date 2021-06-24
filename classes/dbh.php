@@ -3,7 +3,6 @@ class dbh extends db {
   private static $create_opt;
   private static $db_opt;
   private static $table_created;
-  private static $can_insert;
   public static $query;
   public static $table;
 
@@ -11,6 +10,7 @@ class dbh extends db {
   * check if required hasOpt is true in order to make db connection
   */
   private static function check_for_db_cred() {
+    // TODO: error handling if not all connection options are specified
     if (
       get_opt::$args->hasOpt('host') &&
       get_opt::$args->hasOpt('user') &&
@@ -28,7 +28,7 @@ class dbh extends db {
 
       self::$table_created = true;
 
-      echo sprintf("\n  Creating table `%s` in database: %s \n\n", self::$table, parent::$database);
+      echo sprintf("Creating table `%s` in database: %s \n", self::$table, parent::$database);
     } else return;
    }
 
@@ -37,14 +37,14 @@ class dbh extends db {
   }
 
   private static function check_insert_opt() {
+    // NOTE: can we handle cases where --create_table hasn't been run in this manner?
     if (!self::$db_opt && !self::$table_created) {
-      // NOTE: can we handle cases where --create_table hasn't been run in this manner?
-      die();
+      throw new Exception("ERROR: ~~insert error message here~~");
     }
   }
 
   public static function handle_insert() {
-    if (get_opt::$args->hasOpt('file')) {
+    if (get_opt::$args->hasOpt('file') && self::$db_opt) {
       self::check_insert_opt();
       parent::connect();
 
@@ -55,7 +55,7 @@ class dbh extends db {
 
       $statement = parent::$con->prepare($query);
 
-      // NOTE: we are inserting duplicate entries twice, even though email col is set to UNIQUE
+      // NOTE: Exception isn't being thrown for duplicate entries into database
       foreach (parse::$user_data as $user) {
         try {
           $statement->bind_param('sss', $user['name'], $user['surname'], $user['email']);
@@ -69,7 +69,6 @@ class dbh extends db {
       }
 
       parent::$con->close();
-    } else {
     }
-  }
+   }
 }

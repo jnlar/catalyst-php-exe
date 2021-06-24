@@ -22,12 +22,12 @@ class parse {
 			self::$csv = Reader::createFromPath(self::$get_csv);
 			self::$csv->setHeaderOffset(0);
 		} catch (Exception $e) {
-			die($e->getMessage().PHP_EOL);
+			die(get_opt::$cli->red("ERROR: No file specified with --file flag\n"));
 		}
 	}
 
 	private static function get_file() {
-		self::$get_csv = get_opt::$args->getOpt('file');
+		return self::$get_csv = get_opt::$args->getOpt('file');
 	}
 
 	private static function trim_header() {

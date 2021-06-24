@@ -10,6 +10,7 @@ class get_opt {
   public function __construct() {
     self::$cli = new Cli;
     $this->init_opt();
+    // TODO: remove error repression, instead spit out --help if no options used
     @self::$args = self::$cli->parse($argv, true);
   }
 
