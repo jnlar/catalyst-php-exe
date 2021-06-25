@@ -13,7 +13,8 @@ class parse {
 		if (get_opt::$args->hasOpt('file')) {
 			self::get_file();
 			self::read_file();
-			self::trim_header();
+			self::get_records();
+			self::remove_duplicate();
 		}
 	}
 
@@ -54,7 +55,7 @@ class parse {
 		} else return false;
 	}
 
-	private static function trim_header() {
+	private static function get_records() {
 		self::$header = array_map('trim', self::$csv->getHeader());
 		self::$user_data = array_map(
 			'self::reformat_user_data',
@@ -76,5 +77,9 @@ class parse {
 			'surname' => self::clean_names($user_details['surname']),
 			'email' => self::clean_email(strtolower($user_details['email']))
 		];
+	}
+
+	public static function remove_duplicate() {
+		self::$user_data = array_unique(self::$user_data, SORT_REGULAR);
 	}
 }
