@@ -17,6 +17,7 @@ class parse {
 		}
 	}
 
+
 	private static function read_file() {
 		try {
 			self::$csv = Reader::createFromPath(self::$get_csv);
@@ -28,6 +29,30 @@ class parse {
 
 	private static function get_file() {
 		return self::$get_csv = get_opt::$args->getOpt('file');
+	}
+
+	public static function handle_dry_run() {
+		if (get_opt::$args->hasOpt('dry_run') && get_opt::$args->hasOpt('file')) {
+			self::parse_csv();
+		}
+	}
+
+  public static function parse_csv($callback = null) {
+    foreach (self::$user_data as $user) {
+			if (!self::check_valid_email($user)) {
+				echo sprintf("Valid Email: %s \n", $user['email']);
+			} else {
+				self::check_valid_email($user);
+			}
+
+			$callback;
+    }
+  }
+
+	private static function check_valid_email($user) {
+		if (!filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
+			echo sprintf("Invalid Email: %s \n", $user['email']);
+		} else return false;
 	}
 
 	private static function trim_header() {
@@ -46,19 +71,11 @@ class parse {
 		return preg_replace("/[\n\s\-]/", '', strtolower($email));
 	}
 
-	private static function stdout_invalid_email($user_details) {
-		echo sprintf("Invalid Email: %s \n", $user_details['email']);
-	}
-
 	private static function reformat_user_data($user_details) {
 		return [
 			'name' => self::clean_names($user_details['name']),
 			'surname' => self::clean_names($user_details['surname']),
 			'email' => self::clean_email(strtolower($user_details['email']))
 		];
-	}
-
-	private static function is_valid_email($user) {
-		return !filter_var($user['email'], FILTER_VALIDATE_EMAIL);
 	}
 }

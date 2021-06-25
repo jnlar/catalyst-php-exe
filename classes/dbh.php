@@ -51,8 +51,6 @@ class dbh extends db {
       $query = "
       INSERT INTO " . self::$table . " (name, surname, email) VALUES (?, ?, ?)";
 
-      //mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
-
       $statement = parent::$con->prepare($query);
 
       // NOTE: Exception isn't being thrown for duplicate entries into database

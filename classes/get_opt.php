@@ -10,8 +10,13 @@ class get_opt {
   public function __construct() {
     self::$cli = new Cli;
     $this->init_opt();
-    // TODO: remove error repression, instead spit out --help if no options used
-    @self::$args = self::$cli->parse($argv, true);
+  }
+
+  // TODO: only show help if no arg given
+  public static function show_help() {
+    if (self::$cli) {
+      self::$cli->writeHelp();
+    }
   }
 
   private function init_opt() {

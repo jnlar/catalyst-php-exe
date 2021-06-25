@@ -2,6 +2,8 @@
 require 'includes/autoloader.php';
 
 $get_opt = new get_opt();
+get_opt::$args = get_opt::$cli->parse($argv, true);
+
 $parse = new parse();
 
 db::get_db_cred([
@@ -19,5 +21,7 @@ dbh::$query = "
 	surname VARCHAR(150),
 	email VARCHAR(150) UNIQUE);
 ";
+
 dbh::handle_create();
 dbh::handle_insert();
+parse::handle_dry_run();
