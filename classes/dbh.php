@@ -56,11 +56,16 @@ class dbh extends db {
       // NOTE: Exception isn't being thrown for duplicate entries into database
       foreach (parse::$user_data as $user) {
         try {
-          $statement->bind_param('sss', $user['name'], $user['surname'], $user['email']);
-          $statement->execute();
+          if (!parse::check_valid_email($user)) {
+            $statement->bind_param('sss', $user['name'], $user['surname'], $user['email']);
+            $statement->execute();
 
-          echo sprintf("inserting %s, %s, %s into table: %s\n",
-            $user['name'], $user['surname'], $user['email'], self::$table);
+            echo get_opt::$cli->green(sprintf("Inserting: %s, %s, %s (OK) into table: %s\n",
+              $user['name'], $user['surname'], $user['email'], self::$table));
+          } else {
+            echo get_opt::$cli->red(sprintf("ERROR: %s, %s, %s (INVALID)\n",
+              $user['name'], $user['surname'], $user['email']));
+          }
         } catch (Exception $e) {
           echo sprintf("ERROR: %s \n", $e->getMessage());
         }

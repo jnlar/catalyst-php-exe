@@ -17,7 +17,6 @@ class parse {
 		}
 	}
 
-
 	private static function read_file() {
 		try {
 			self::$csv = Reader::createFromPath(self::$get_csv);
@@ -33,25 +32,25 @@ class parse {
 
 	public static function handle_dry_run() {
 		if (get_opt::$args->hasOpt('dry_run') && get_opt::$args->hasOpt('file')) {
-			self::parse_csv();
+			return self::dry_run();
 		}
 	}
 
-  public static function parse_csv($callback = null) {
+	private static function dry_run() {
+		echo sprintf("Running validation tests on emails from \$data['email'] \n\n");
+
     foreach (self::$user_data as $user) {
 			if (!self::check_valid_email($user)) {
-				echo sprintf("Valid Email: %s \n", $user['email']);
+				echo get_opt::$cli->green(sprintf("OK: %s \n", $user['email']));
 			} else {
-				self::check_valid_email($user);
+				echo get_opt::$cli->red(sprintf("INVALID: %s \n", $user['email']));
 			}
-
-			$callback;
     }
   }
 
-	private static function check_valid_email($user) {
+	public static function check_valid_email($user) {
 		if (!filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
-			echo sprintf("Invalid Email: %s \n", $user['email']);
+			return true;
 		} else return false;
 	}
 
