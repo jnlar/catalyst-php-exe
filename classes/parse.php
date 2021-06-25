@@ -31,13 +31,7 @@ class parse {
 		return self::$get_csv = get_opt::$args->getOpt('file');
 	}
 
-	public static function handle_dry_run() {
-		if (get_opt::$args->hasOpt('dry_run') && get_opt::$args->hasOpt('file')) {
-			return self::dry_run();
-		}
-	}
-
-	private static function dry_run() {
+	public static function dry_run() {
 		echo sprintf("Running validation tests on emails from \$data['email'] \n\n");
 
     foreach (self::$user_data as $user) {

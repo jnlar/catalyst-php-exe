@@ -8,7 +8,7 @@ class db {
   public static $query;
   public static $con;
 
-  public static function get_db_cred(array $args) {
+  public static function get_db_cred($args) {
     self::$host = $args[0];
     self::$user = $args[1];
     self::$password = $args[2];

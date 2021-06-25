@@ -1,34 +1,16 @@
 <?php
 class dbh extends db {
   private static $create_opt;
-  private static $db_opt;
-  private static $table_created;
+  public static $db_opt;
   public static $query;
   public static $table;
 
-  /*
-  * check if required hasOpt is true in order to make db connection
-  */
-  private static function check_for_db_cred() {
-    // TODO: error handling if not all connection options are specified
-    if (
-      get_opt::$args->hasOpt('host') &&
-      get_opt::$args->hasOpt('user') &&
-      get_opt::$args->hasOpt('password') &&
-      get_opt::$args->hasOpt('database')
-      ) self::$db_opt = true;
-  }
-
   public static function handle_create() {
-    self::check_for_db_cred();
-
-    if (self::$db_opt && get_opt::$args->hasOpt('create_table')) {
+    if (self::$db_opt) {
       parent::connect();
       self::create_table();
 
-      self::$table_created = true;
-
-      echo sprintf("Creating table `%s` in database: %s \n", self::$table, parent::$database);
+      echo get_opt::$cli->green(sprintf("Creating table `%s` in database: %s \n", self::$table, parent::$database));
     } else return;
    }
 
@@ -36,42 +18,48 @@ class dbh extends db {
     parent::$con->multi_query(self::$query) or die(parent::$con->error . "\n");
   }
 
-  private static function check_insert_opt() {
-    // NOTE: can we handle cases where --create_table hasn't been run in this manner?
-    if (!self::$db_opt && !self::$table_created) {
-      throw new Exception("ERROR: ~~insert error message here~~");
+  private static function check_table_exists() {
+    $query = "SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA = ?) AND (TABLE_NAME = ?)";
+
+    $statement = parent::$con->prepare($query);
+    $statement->bind_param('ss', parent::$database, self::$table);
+    $statement->execute();
+    $res = $statement->get_result();
+    $row = $res->fetch_assoc();
+
+    if ($row['count(*)'] == 0) {
+      throw new \Exception();
     }
   }
 
   public static function handle_insert() {
-    if (get_opt::$args->hasOpt('file') && self::$db_opt) {
-      self::check_insert_opt();
-      parent::connect();
+    parent::connect();
 
-      $query = "
-      INSERT INTO " . self::$table . " (name, surname, email) VALUES (?, ?, ?)";
+    if (self::$db_opt) {
+      try {
+        self::check_table_exists();
+      } catch (\Exception $e) {
+        die(get_opt::$cli->red("ERROR: " . self::$table . " table doesn't exist, run --create_table first\n"));
+      }
+
+      $query = "INSERT INTO " . self::$table . " (name, surname, email) VALUES (?, ?, ?)";
 
       $statement = parent::$con->prepare($query);
 
-      // NOTE: Exception isn't being thrown for duplicate entries into database
       foreach (parse::$user_data as $user) {
-        try {
-          if (!parse::check_valid_email($user)) {
-            $statement->bind_param('sss', $user['name'], $user['surname'], $user['email']);
-            $statement->execute();
+        if (!parse::check_valid_email($user)) {
+          $statement->bind_param('sss', $user['name'], $user['surname'], $user['email']);
+          $statement->execute();
 
-            echo get_opt::$cli->green(sprintf("Inserting: %s, %s, %s (OK) into table: %s\n",
-              $user['name'], $user['surname'], $user['email'], self::$table));
-          } else {
-            echo get_opt::$cli->red(sprintf("ERROR: %s, %s, %s (INVALID)\n",
-              $user['name'], $user['surname'], $user['email']));
-          }
-        } catch (Exception $e) {
-          echo sprintf("ERROR: %s \n", $e->getMessage());
+          echo get_opt::$cli->green(sprintf("Inserting: %s, %s, %s (OK) into table: %s\n",
+            $user['name'], $user['surname'], $user['email'], self::$table));
+        } else {
+          echo get_opt::$cli->red(sprintf("Not inserting: %s, %s, %s (INVALID FORMAT)\n",
+            $user['name'], $user['surname'], $user['email']));
         }
       }
 
       parent::$con->close();
     }
-   }
+  }
 }

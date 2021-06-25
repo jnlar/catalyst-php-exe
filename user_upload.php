@@ -6,13 +6,6 @@ get_opt::$args = get_opt::$cli->parse($argv, true);
 
 $parse = new parse();
 
-db::get_db_cred([
-	get_opt::$args->getOpt('host'),
-	get_opt::$args->getOpt('user'),
-	get_opt::$args->getOpt('password'),
-	get_opt::$args->getOpt('database')
-]);
-
 $table = dbh::$table = "users";
 dbh::$query = "
 	DROP TABLE IF EXISTS $table;
@@ -22,6 +15,8 @@ dbh::$query = "
 	email VARCHAR(150) UNIQUE);
 ";
 
-dbh::handle_create();
-dbh::handle_insert();
-parse::handle_dry_run();
+if (count($argv) == 1) {
+	get_opt::$cli->writeHelp();
+}
+
+$get_opt->bind_opt();
