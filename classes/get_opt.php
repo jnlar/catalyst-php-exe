@@ -3,7 +3,7 @@ require_once 'vendor/autoload.php';
 
 use Garden\Cli\Cli;
 
-class get_opt {
+class get_opt extends Garden\Cli\Cli {
   public static $cli;
   public static $args;
 
@@ -13,8 +13,8 @@ class get_opt {
   }
 
   private function init_opt() {
-    self::$cli->description('CLI script that parses CSV data and inserts formatted CSV data into a MySQL database. Use to --help or -? for CLI options')
-    	->opt('file', '[csv file name] - This is the name of the CSV file to be parsed', false)
+    self::$cli->description("php user_upload.php [<options>]")
+      ->opt('file', '[csv file name] - This is the name of the CSV file to be parsed', false)
     	->opt('create_table', 'This will cause the MySQL users table to be built (no further action will be taken)', false)
     	->opt('dry_run', 'To be used with the --file directive, this option will parse the CSV file but not insert into the database', false)
     	->opt('user:u', 'MySQL username', false)
@@ -55,7 +55,7 @@ class get_opt {
   }
 
   private function handle_insert_opt() {
-    if (self::$args->hasOpt('file')) {
+    if (self::$args->hasOpt('file') && !self::$args->hasOpt('dry_run')) {
       return dbh::handle_insert();
     }
   }
@@ -64,5 +64,11 @@ class get_opt {
     if (self::$args->hasOpt('file') && self::$args->hasOpt('dry_run')) {
       return parse::dry_run();
     }
+  }
+
+  public static function print_error($string) {
+    echo sprintf(get_opt::$cli->red($string));
+    get_opt::$cli->writeHelp();
+    die;
   }
 }

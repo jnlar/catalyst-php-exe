@@ -23,7 +23,7 @@ class parse {
 			self::$csv = Reader::createFromPath(self::$get_csv);
 			self::$csv->setHeaderOffset(0);
 		} catch (Exception $e) {
-			die(get_opt::$cli->red("ERROR: No file specified with --file flag\n"));
+			get_opt::print_error("ERROR: No file specified with --file flag\n\n");
 		}
 	}
 
@@ -32,7 +32,7 @@ class parse {
 	}
 
 	public static function dry_run() {
-		echo sprintf("Running validation tests on emails from \$data['email'] \n\n");
+		echo sprintf("Running validation tests on emails from \$csv['email']\n\n");
 
     foreach (self::$user_data as $user) {
 			if (!self::check_valid_email($user)) {

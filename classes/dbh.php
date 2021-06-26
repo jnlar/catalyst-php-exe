@@ -42,18 +42,19 @@ class dbh extends db {
     try {
       self::exception_dbh_opt();
     } catch (\Exception $e) {
-      die(get_opt::$cli->red("ERROR: Database credential flags were not given with --file flag\n"));
+      get_opt::print_error("ERROR: Run --file with either --dry_run or database credential flags\n\n");
     }
   }
 
   public static function handle_insert() {
+
     self::check_dbh_opt();
     parent::connect();
 
     try {
       self::check_table_exists();
     } catch (\Exception $e) {
-      die(get_opt::$cli->red("ERROR: " . self::$table . " table doesn't exist, run --create_table first\n"));
+      get_opt::print_error("ERROR: " . self::$table . " table doesn't exist, run --create_table first\n\n");
     }
 
     $query = "INSERT INTO " . self::$table . " (name, surname, email) VALUES (?, ?, ?)";
