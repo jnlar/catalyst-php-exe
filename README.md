@@ -35,12 +35,12 @@ OPTIONS
 
 Creating a table: 
 
-`php user_upload.php -h localhost -u user -p password -d example_database --create_table`
+> php user_upload.php -h localhost -u user -p password -d example_database --create_table
 
 Inserting parsed CSV data into table: 
 
-`php user_upload.php -h localhost -u user -p password -d example_database --file example_csv.csv`
+> php user_upload.php -h localhost -u user -p password -d example_database --file example_csv.csv
 
 Parse CSV with `--dry_run`: 
 
-`php user_upload.php --file example_csv.csv --dry_run`
+> php user_upload.php --file example_csv.csv --dry_run
