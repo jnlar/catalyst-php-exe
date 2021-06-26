@@ -51,9 +51,7 @@ class parse {
 
 	private static function get_records() {
 		self::$header = array_map('trim', self::$csv->getHeader());
-		self::$user_data = array_map(
-			'self::reformat_user_data',
-			iterator_to_array(self::$csv->getRecords(self::$header)));
+		self::$user_data = array_map('self::reformat_user_data', iterator_to_array(self::$csv->getRecords(self::$header)));
 	}
 
 	private static function clean_names($user_names) {

@@ -32,34 +32,47 @@ class dbh extends db {
     }
   }
 
+  private static function exception_dbh_opt() {
+    if (!self::$db_opt) {
+      throw new \Exception();
+    }
+  }
+
+  private static function check_dbh_opt() {
+    try {
+      self::exception_dbh_opt();
+    } catch (\Exception $e) {
+      die(get_opt::$cli->red("ERROR: Database credential flags were not given with --file flag\n"));
+    }
+  }
+
   public static function handle_insert() {
+    self::check_dbh_opt();
     parent::connect();
 
-    if (self::$db_opt) {
-      try {
-        self::check_table_exists();
-      } catch (\Exception $e) {
-        die(get_opt::$cli->red("ERROR: " . self::$table . " table doesn't exist, run --create_table first\n"));
-      }
-
-      $query = "INSERT INTO " . self::$table . " (name, surname, email) VALUES (?, ?, ?)";
-
-      $statement = parent::$con->prepare($query);
-
-      foreach (parse::$user_data as $user) {
-        if (!parse::check_valid_email($user)) {
-          $statement->bind_param('sss', $user['name'], $user['surname'], $user['email']);
-          $statement->execute();
-
-          echo get_opt::$cli->green(sprintf("Inserting: %s, %s, %s (OK) into table: %s\n",
-            $user['name'], $user['surname'], $user['email'], self::$table));
-        } else {
-          echo get_opt::$cli->red(sprintf("Not inserting: %s, %s, %s (INVALID FORMAT)\n",
-            $user['name'], $user['surname'], $user['email']));
-        }
-      }
-
-      parent::$con->close();
+    try {
+      self::check_table_exists();
+    } catch (\Exception $e) {
+      die(get_opt::$cli->red("ERROR: " . self::$table . " table doesn't exist, run --create_table first\n"));
     }
+
+    $query = "INSERT INTO " . self::$table . " (name, surname, email) VALUES (?, ?, ?)";
+
+    $statement = parent::$con->prepare($query);
+
+    foreach (parse::$user_data as $user) {
+      if (!parse::check_valid_email($user)) {
+        $statement->bind_param('sss', $user['name'], $user['surname'], $user['email']);
+        $statement->execute();
+
+        echo get_opt::$cli->green(sprintf("Inserting: %s, %s, %s (OK) into table: %s\n",
+          $user['name'], $user['surname'], $user['email'], self::$table));
+      } else {
+        echo get_opt::$cli->red(sprintf("Not inserting: %s, %s, %s (INVALID FORMAT)\n",
+          $user['name'], $user['surname'], $user['email']));
+      }
+    }
+
+    parent::$con->close();
   }
 }
