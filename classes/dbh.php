@@ -22,6 +22,10 @@ class dbh extends db {
     parent::$con->multi_query(self::$query) or die(parent::$con->error . "\n");
   }
 
+  /*
+  * we need this in the instance where --file and -h -u -p -d are specified as options
+  * but the table doesn't exist
+  */
   private static function check_table_exists() {
     $query = "SELECT count(*) FROM information_schema.TABLES WHERE (TABLE_SCHEMA = ?) AND (TABLE_NAME = ?)";
 

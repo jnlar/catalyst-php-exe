@@ -5,23 +5,23 @@ use League\Csv\Reader;
 
 class parse {
 	private static $header;
-	private static $get_csv;
-	private static $csv;
+	private $get_csv;
+	private $csv;
 	public static $user_data;
 
 	public function __construct() {
 		if (opt::$args->hasOpt('file')) {
-			self::get_file();
-			self::read_file();
-			self::get_records();
-			self::remove_duplicate();
+			$this->get_file();
+			$this->read_file();
+			$this->get_records();
+			$this->remove_duplicates();
 		}
 	}
 
-	private static function read_file() {
+	private function read_file() {
 		try {
-			self::$csv = Reader::createFromPath(self::$get_csv);
-			self::$csv->setHeaderOffset(0);
+			$this->csv = Reader::createFromPath($this->get_csv);
+			$this->csv->setHeaderOffset(0);
 		} catch (Exception $e) {
 
 			// NOTE: doesn't accomodate for invalid file format
@@ -29,8 +29,8 @@ class parse {
 		}
 	}
 
-	private static function get_file() {
-		return self::$get_csv = opt::$args->getOpt('file');
+	private function get_file() {
+		return $this->get_csv = opt::$args->getOpt('file');
 	}
 
 	public static function dry_run() {
@@ -51,32 +51,37 @@ class parse {
 		} else return false;
 	}
 
-	private static function get_records() {
-		self::$header = array_map('trim', self::$csv->getHeader());
-		self::$user_data = array_map('self::return_formatted_data', iterator_to_array(self::$csv->getRecords(self::$header)));
+	private function get_records() {
+		self::$header = array_map('trim', $this->csv->getHeader());
+
+		/*
+		* returns a 2 dimensional array where each element in the array is an
+		* assosciative array containing formatted user data
+		*/
+		self::$user_data = array_map('self::return_formatted_data', iterator_to_array($this->csv->getRecords(self::$header)));
 	}
 
-	// remove digits, special characters, tabs from string and lower -> uppercase first character of strings
-	private static function clean_names($user_names) {
+	// remove digits, spaces, special characters, tabs from strings and lower all -> uppercase first character/s of strings
+	private function clean_names($user_names) {
 		$names = str_replace(' ',  '', ucfirst(strtolower($user_names)));
 		return preg_replace('/[0-9!@#$%^&*()\t\-\+\-]/', '', $names);
 	}
 
 	// remove line breaks, spaces and convert email string to lowercase
-	private static function clean_email($email) {
+	private function clean_email($email) {
 		return preg_replace("/[\n\s\-]/", '', strtolower($email));
 	}
 
-	private static function return_formatted_data($user_details) {
+	// create new formatted key value pairs for user details
+	private function return_formatted_data($user_details) {
 		return [
-			'name' => self::clean_names($user_details['name']),
-			'surname' => self::clean_names($user_details['surname']),
-			'email' => self::clean_email(strtolower($user_details['email']))
+			'name' => $this->clean_names($user_details['name']),
+			'surname' => $this->clean_names($user_details['surname']),
+			'email' => $this->clean_email(strtolower($user_details['email']))
 		];
 	}
 
-	// NOTE: do we need a function for this? probably better to have, idk :^)
-	private static function remove_duplicate() {
+	private function remove_duplicates() {
 		self::$user_data = array_unique(self::$user_data, SORT_REGULAR);
 	}
 }

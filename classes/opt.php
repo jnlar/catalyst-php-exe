@@ -30,6 +30,16 @@ class opt {
     $this->handle_dry_run();
   }
 
+  public static function error_die($color, $string) {
+    self::print_color($color, $string);
+    self::$cli->writeHelp();
+    die;
+  }
+
+  public static function print_color($color, $format, ...$values) {
+    echo self::$cli->$color(sprintf($format, ...$values));
+  }
+
   // if we are given db credential flags, assign their values as protected statics in db class
   private function handle_db_opt() {
     if (
@@ -49,8 +59,12 @@ class opt {
     }
   }
 
+  /*
+  *
+  * here we bind the appropriate methods to their cli option/s
+  *
+  */
   private function handle_create_opt() {
-    // NOTE: --create_table option needs to be run by itself
     if (self::$args->hasOpt('create_table') && !self::$args->hasOpt('file')) {
       return dbh::handle_create();
     }
@@ -66,15 +80,5 @@ class opt {
     if (self::$args->hasOpt('file') && self::$args->hasOpt('dry_run')) {
       return parse::dry_run();
     }
-  }
-
-  public static function error_die($color, $string) {
-    self::print_color($color, $string);
-    self::$cli->writeHelp();
-    die;
-  }
-
-  public static function print_color($color, $format, ...$values) {
-    echo self::$cli->$color(sprintf($format, ...$values));
   }
 }

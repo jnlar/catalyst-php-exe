@@ -12,7 +12,7 @@ Simple PHP-CLI script that:
 - [vanilla/garden-cli ^3.1](https://github.com/vanilla/garden-cli)
 - [league/csv ^9.7](https://github.com/thephpleague/csv)
 
-Run `composer install` (or the equivilent install command for your PHP package manager) to install the dependencies.
+Run `composer install` (or the equivalent install command for your PHP package manager) to install the dependencies.
 
 ### Usage
 
