@@ -16,6 +16,7 @@ class db {
   }
 
   public static function connect() {
+    // NOTE: we are spitting out default mysqli errors still
     self::$con = new mysqli(
       self::$host,
       self::$user,

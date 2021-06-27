@@ -10,7 +10,7 @@ class parse {
 	public static $user_data;
 
 	public function __construct() {
-		if (get_opt::$args->hasOpt('file')) {
+		if (opt::$args->hasOpt('file')) {
 			self::get_file();
 			self::read_file();
 			self::get_records();
@@ -23,12 +23,14 @@ class parse {
 			self::$csv = Reader::createFromPath(self::$get_csv);
 			self::$csv->setHeaderOffset(0);
 		} catch (Exception $e) {
-			get_opt::print_error("ERROR: No file specified with --file flag\n\n");
+
+			// NOTE: doesn't accomodate for invalid file format
+			opt::error_die("red", "ERROR: No file specified with --file flag\n\n");
 		}
 	}
 
 	private static function get_file() {
-		return self::$get_csv = get_opt::$args->getOpt('file');
+		return self::$get_csv = opt::$args->getOpt('file');
 	}
 
 	public static function dry_run() {
@@ -36,9 +38,9 @@ class parse {
 
     foreach (self::$user_data as $user) {
 			if (!self::check_valid_email($user)) {
-				echo get_opt::$cli->green(sprintf("OK: %s \n", $user['email']));
+				opt::print_color("green", "OK: %s \n", $user['email']);
 			} else {
-				echo get_opt::$cli->red(sprintf("INVALID: %s \n", $user['email']));
+				opt::print_color("red", "INVALID: %s \n", $user['email']);
 			}
     }
   }
@@ -51,19 +53,21 @@ class parse {
 
 	private static function get_records() {
 		self::$header = array_map('trim', self::$csv->getHeader());
-		self::$user_data = array_map('self::reformat_user_data', iterator_to_array(self::$csv->getRecords(self::$header)));
+		self::$user_data = array_map('self::return_formatted_data', iterator_to_array(self::$csv->getRecords(self::$header)));
 	}
 
+	// remove digits, special characters, tabs from string and lower -> uppercase first character of strings
 	private static function clean_names($user_names) {
 		$names = str_replace(' ',  '', ucfirst(strtolower($user_names)));
-		return preg_replace('/[!@#$%^&*()\t\-\+\-]/', '', $names);
+		return preg_replace('/[0-9!@#$%^&*()\t\-\+\-]/', '', $names);
 	}
 
+	// remove line breaks, spaces and convert email string to lowercase
 	private static function clean_email($email) {
 		return preg_replace("/[\n\s\-]/", '', strtolower($email));
 	}
 
-	private static function reformat_user_data($user_details) {
+	private static function return_formatted_data($user_details) {
 		return [
 			'name' => self::clean_names($user_details['name']),
 			'surname' => self::clean_names($user_details['surname']),
@@ -71,7 +75,8 @@ class parse {
 		];
 	}
 
-	public static function remove_duplicate() {
+	// NOTE: do we need a function for this? probably better to have, idk :^)
+	private static function remove_duplicate() {
 		self::$user_data = array_unique(self::$user_data, SORT_REGULAR);
 	}
 }

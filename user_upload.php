@@ -1,11 +1,15 @@
 <?php
 require 'includes/autoloader.php';
 
-$get_opt = new get_opt();
-get_opt::$args = get_opt::$cli->parse($argv, true);
+$opt = new opt();
+// NOTE: can this be a public function? we instantiate the opt object
+opt::$args = opt::$cli->parse($argv, true);
 
 $parse = new parse();
 
+/*
+* declare the name of the table and table creation quuery here
+*/
 $table = dbh::$table = "users";
 dbh::$query = "
 	DROP TABLE IF EXISTS $table;
@@ -15,8 +19,9 @@ dbh::$query = "
 	email VARCHAR(150) UNIQUE);
 ";
 
+// NOTE: dirty but works
 if (count($argv) == 1) {
-	get_opt::$cli->writeHelp();
+	opt::$cli->writeHelp();
 }
 
-$get_opt->bind_opt();
+$opt->bind_opt();

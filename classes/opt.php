@@ -3,7 +3,7 @@ require_once 'vendor/autoload.php';
 
 use Garden\Cli\Cli;
 
-class get_opt extends Garden\Cli\Cli {
+class opt {
   public static $cli;
   public static $args;
 
@@ -30,6 +30,7 @@ class get_opt extends Garden\Cli\Cli {
     $this->handle_dry_run();
   }
 
+  // if we are given db credential flags, assign their values as protected statics in db class
   private function handle_db_opt() {
     if (
       self::$args->hasOpt('host') &&
@@ -49,7 +50,8 @@ class get_opt extends Garden\Cli\Cli {
   }
 
   private function handle_create_opt() {
-    if (self::$args->hasOpt('create_table')) {
+    // NOTE: --create_table option needs to be run by itself
+    if (self::$args->hasOpt('create_table') && !self::$args->hasOpt('file')) {
       return dbh::handle_create();
     }
   }
@@ -66,9 +68,13 @@ class get_opt extends Garden\Cli\Cli {
     }
   }
 
-  public static function print_error($string) {
-    echo sprintf(get_opt::$cli->red($string));
-    get_opt::$cli->writeHelp();
+  public static function error_die($color, $string) {
+    self::print_color($color, $string);
+    self::$cli->writeHelp();
     die;
+  }
+
+  public static function print_color($color, $format, ...$values) {
+    echo self::$cli->$color(sprintf($format, ...$values));
   }
 }

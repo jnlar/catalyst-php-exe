@@ -6,13 +6,17 @@ class dbh extends db {
   public static $table;
 
   public static function handle_create() {
-    if (self::$db_opt) {
+    try {
+      self::exception_dbh_opt();
+
       parent::connect();
       self::create_table();
 
-      echo get_opt::$cli->green(sprintf("Creating table `%s` in database: %s \n", self::$table, parent::$database));
-    } else return;
-   }
+      opt::print_color("green", "Creating table `%s` in database: %s \n", self::$table, parent::$database);
+    } catch (\Exception $e) {
+      opt::error_die("red", "ERROR: --create_table needs database credential flags in order to run\n\n");
+    }
+  }
 
   private static function create_table() {
     parent::$con->multi_query(self::$query) or die(parent::$con->error . "\n");
@@ -39,38 +43,40 @@ class dbh extends db {
   }
 
   private static function check_dbh_opt() {
+    // NOTE: we could create generalised error functions in their own class
     try {
       self::exception_dbh_opt();
     } catch (\Exception $e) {
-      get_opt::print_error("ERROR: Run --file with either --dry_run or database credential flags\n\n");
+      opt::error_die("red", "ERROR: Run --file with either --dry_run or database credential flags\n\n");
     }
   }
 
   public static function handle_insert() {
-
     self::check_dbh_opt();
     parent::connect();
 
+    // we'll only attempt to begin insertion if the table exists
     try {
       self::check_table_exists();
     } catch (\Exception $e) {
-      get_opt::print_error("ERROR: " . self::$table . " table doesn't exist, run --create_table first\n\n");
+      opt::error_die("red", "ERROR: " . self::$table . " table doesn't exist, run --create_table first\n\n");
     }
 
     $query = "INSERT INTO " . self::$table . " (name, surname, email) VALUES (?, ?, ?)";
 
     $statement = parent::$con->prepare($query);
 
+    // if users email is a valid format, insert into the MySQL database, otherwise spit out error
     foreach (parse::$user_data as $user) {
       if (!parse::check_valid_email($user)) {
         $statement->bind_param('sss', $user['name'], $user['surname'], $user['email']);
         $statement->execute();
 
-        echo get_opt::$cli->green(sprintf("Inserting: %s, %s, %s (OK) into table: %s\n",
-          $user['name'], $user['surname'], $user['email'], self::$table));
+        opt::print_color("green", "Inserting: %s, %s, %s (OK) into table: %s\n",
+          $user['name'], $user['surname'], $user['email'], self::$table);
       } else {
-        echo get_opt::$cli->red(sprintf("Not inserting: %s, %s, %s (INVALID FORMAT)\n",
-          $user['name'], $user['surname'], $user['email']));
+        opt::print_color("red", "Not inserting: %s, %s, %s (INVALID FORMAT)\n",
+          $user['name'], $user['surname'], $user['email']);
       }
     }
 
