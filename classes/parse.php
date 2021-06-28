@@ -1,4 +1,5 @@
 <?php
+
 require_once 'vendor/autoload.php';
 
 use League\Csv\Reader;
@@ -45,6 +46,13 @@ class parse {
     }
   }
 
+  /*
+  * Returns either true of false dependent on
+  * whether the value to the email property is a valid email
+  *
+  * @param string $user
+  * @return boolean
+  */
 	public static function check_valid_email($user) {
 		if (!filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
 			return true;
@@ -55,13 +63,19 @@ class parse {
 		self::$header = array_map('trim', $this->csv->getHeader());
 
 		/*
-		* returns a 2 dimensional array where each element in the array is an
+		* Returns a 2 dimensional array where each element in the array is an
 		* assosciative array containing formatted user data
 		*/
 		self::$user_data = array_map('self::return_formatted_data', iterator_to_array($this->csv->getRecords(self::$header)));
 	}
 
-	// remove digits, spaces, special characters, tabs from strings and lower all -> uppercase first character/s of strings
+  /*
+  * Remove digits, spaces, special characters, tabs from strings
+	* and lower all -> uppercase first character/s of strings
+	*
+  * @param string $user_names
+  * @return string
+  */
 	private function clean_names($user_names) {
 		$names = str_replace(' ',  '', ucfirst(strtolower($user_names)));
 		return preg_replace('/[0-9!@#$%^&*()\t\-\+\-]/', '', $names);

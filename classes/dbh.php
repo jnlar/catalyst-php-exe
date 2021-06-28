@@ -1,4 +1,5 @@
 <?php
+
 class dbh extends db {
   private static $create_opt;
   public static $db_opt;

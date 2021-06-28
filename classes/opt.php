@@ -1,8 +1,13 @@
 <?php
+
 require_once 'vendor/autoload.php';
 
 use Garden\Cli\Cli;
 
+/*
+* class for handling cli options, method bindings print
+* formatting to STDOUT
+*/
 class opt {
   public static $cli;
   public static $args;
@@ -12,6 +17,12 @@ class opt {
     $this->init_opt();
   }
 
+
+  /*
+  * Initialise self::$cli options and description
+  *
+  * @return method/s
+  */
   private function init_opt() {
     self::$cli->description("php user_upload.php [<options>]")
       ->opt('file', '[csv file name] - This is the name of the CSV file to be parsed', false)
@@ -30,17 +41,37 @@ class opt {
     $this->handle_dry_run();
   }
 
+  /*
+  * Generalised die for opt methods
+  *
+  * @param string $color
+  * @param string $string
+  * @return string
+  */
   public static function error_die($color, $string) {
     self::print_color($color, $string);
     self::$cli->writeHelp();
     die;
   }
 
+  /*
+  * Generalised color printing method to STDOUT
+  * and spreading sprintf values for format string
+  *
+  * @param string $color
+  * @param string $format
+  * @param string ...$values
+  * @return string
+  */
   public static function print_color($color, $format, ...$values) {
     echo self::$cli->$color(sprintf($format, ...$values));
   }
 
-  // if we are given db credential flags, assign their values as protected statics in db class
+  /*
+  * If we are given db credential flags, assign their values
+  * as protected statics in db class
+  *
+  */
   private function handle_db_opt() {
     if (
       self::$args->hasOpt('host') &&
@@ -60,9 +91,7 @@ class opt {
   }
 
   /*
-  *
-  * here we bind the appropriate methods to their cli option/s
-  *
+  * Here we bind the appropriate methods to their cli option/s
   */
   private function handle_create_opt() {
     if (self::$args->hasOpt('create_table') && !self::$args->hasOpt('file')) {

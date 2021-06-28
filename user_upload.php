@@ -1,4 +1,5 @@
 <?php
+
 require 'includes/autoloader.php';
 
 $opt = new opt();
@@ -7,7 +8,7 @@ opt::$args = opt::$cli->parse($argv, true);
 $parse = new parse();
 
 /*
-* declare the name of the table and table creation query here
+* Declare the name of the table and table creation query here
 */
 $table = dbh::$table = "users";
 dbh::$query = "
@@ -22,4 +23,7 @@ if (count($argv) == 1) {
 	opt::$cli->writeHelp();
 }
 
+/*
+* Bind options to their corresponding methods
+*/
 $opt->bind_opt();

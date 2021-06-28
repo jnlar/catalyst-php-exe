@@ -1,4 +1,5 @@
 <?php
+
 class db {
   protected static $host;
   protected static $user;
