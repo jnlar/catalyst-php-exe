@@ -5,7 +5,7 @@ require_once 'vendor/autoload.php';
 use Garden\Cli\Cli;
 
 /*
-* class for handling cli options, method bindings print
+* Class for handling cli options, method bindings and print
 * formatting to STDOUT
 */
 class opt {
@@ -17,11 +17,8 @@ class opt {
     $this->init_opt();
   }
 
-
   /*
   * Initialise self::$cli options and description
-  *
-  * @return method/s
   */
   private function init_opt() {
     self::$cli->description("php user_upload.php [<options>]")
@@ -70,7 +67,6 @@ class opt {
   /*
   * If we are given db credential flags, assign their values
   * as protected statics in db class
-  *
   */
   private function handle_db_opt() {
     if (
@@ -90,8 +86,13 @@ class opt {
     }
   }
 
+  // Bind corresponding methods to their cli option/s
+
   /*
-  * Here we bind the appropriate methods to their cli option/s
+  * Check if create_table option is specified and file isn't,
+  * handle_create() requires no other operation to be run
+  *
+  * @return method
   */
   private function handle_create_opt() {
     if (self::$args->hasOpt('create_table') && !self::$args->hasOpt('file')) {
@@ -99,12 +100,23 @@ class opt {
     }
   }
 
+  /*
+  * Check if file option is specified and dry_run isn't,
+  * csv data insertion is a single process
+  *
+  * @return method
+  */
   private function handle_insert_opt() {
     if (self::$args->hasOpt('file') && !self::$args->hasOpt('dry_run')) {
       return dbh::handle_insert();
     }
   }
 
+  /*
+  * dry_run requires file option, csv parsing is a single process
+  *
+  * @return method
+  */
   private function handle_dry_run() {
     if (self::$args->hasOpt('file') && self::$args->hasOpt('dry_run')) {
       return parse::dry_run();

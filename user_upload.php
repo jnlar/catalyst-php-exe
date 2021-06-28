@@ -1,5 +1,6 @@
 <?php
 
+// autoloader dynamically imports classes created in the /classes folder
 require 'includes/autoloader.php';
 
 $opt = new opt();

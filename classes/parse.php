@@ -4,12 +4,20 @@ require_once 'vendor/autoload.php';
 
 use League\Csv\Reader;
 
+/*
+* Class for handling CSV file operations, validation and string formatting
+*/
 class parse {
 	private static $header;
 	private $get_csv;
 	private $csv;
 	public static $user_data;
 
+	/*
+	* If file option is given, run CSV formatting methods
+	*
+	* @return methods
+	*/
 	public function __construct() {
 		if (opt::$args->hasOpt('file')) {
 			$this->get_file();
@@ -19,6 +27,11 @@ class parse {
 		}
 	}
 
+	/*
+	* Read csv file from path,
+	*
+	* @return array
+	*/
 	private function read_file() {
 		try {
 			$this->csv = Reader::createFromPath($this->get_csv);
@@ -30,10 +43,21 @@ class parse {
 		}
 	}
 
+	/*
+	* Get the value given to --file option
+	*
+	* @return string
+	*/
 	private function get_file() {
 		return $this->get_csv = opt::$args->getOpt('file');
 	}
 
+	/*
+	* Run email validation tests with --dry_run
+	*
+	*
+	* @return string
+	*/
 	public static function dry_run() {
 		echo sprintf("Running validation tests on emails from \$csv['email']\n\n");
 
@@ -81,12 +105,22 @@ class parse {
 		return preg_replace('/[0-9!@#$%^&*()\t\-\+\-]/', '', $names);
 	}
 
-	// remove line breaks, spaces and convert email string to lowercase
+  /*
+  * Remove line breaks, spaces and convert email string to lowercase
+	*
+  * @param string $email
+  * @return string
+  */
 	private function clean_email($email) {
 		return preg_replace("/[\n\s\-]/", '', strtolower($email));
 	}
 
-	// create new formatted key value pairs for user details
+  /*
+  * Create new formatted key value pairs for user details
+	*
+  * @param string $user_details
+  * @return array
+  */
 	private function return_formatted_data($user_details) {
 		return [
 			'name' => $this->clean_names($user_details['name']),
@@ -95,6 +129,11 @@ class parse {
 		];
 	}
 
+  /*
+  * Remove duplicate elements in array
+	*
+  * @return array
+  */
 	private function remove_duplicates() {
 		self::$user_data = array_unique(self::$user_data, SORT_REGULAR);
 	}
