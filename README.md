@@ -1,4 +1,4 @@
-## catalyst-php-exe
+## parse-csv
 
 Simple PHP-CLI script that:
 - Creates/rebuilds database tables
